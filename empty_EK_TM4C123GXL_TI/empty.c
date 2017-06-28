@@ -65,8 +65,11 @@
 #define TASKSTACKSIZE     768
 #define TASKSTACKSIZE1     768
 
+//heartbeat function
 Task_Struct task0Struct;
 Char task0Stack[TASKSTACKSIZE];
+
+//echo function
 Task_Struct task1Struct;
 Char task1Stack[TASKSTACKSIZE];
 
@@ -103,11 +106,10 @@ Void reciverFxn(UArg arg0, UArg arg1)
     }
 }
 */
-/*
- *  ======== echoFxn ========
- *  Task for this function is created statically. See the project's .cfg file.
- */
-Void echoFxn(UArg arg0, UArg arg1)
+
+Void echoFxn(UArg arg0, UArg arg1) //this is not an echo function this function reads in what is being sent over uart, echos it back, and puts
+//the things that are coming in from uart into the buffer.  Then it checks that if the things in the buffer match the control commands, it puts
+//certian messages in the mailbox
 {
     Mailbox_Handle mbxHandle = (Mailbox_Handle)arg0;
 
@@ -187,7 +189,8 @@ Void echoFxn(UArg arg0, UArg arg1)
  *  Toggle the Board_LED0. The Task_sleep is determined by arg0 which
  *  is configured for the heartBeat Task instance.
  */
-Void heartBeatFxn(UArg arg0, UArg arg1)
+Void heartBeatFxn(UArg arg0, UArg arg1) //this is not a heartbeat function this function checks the mailbox to see if there is anything
+//if there is, then it does the corresponding led control
 {
     Mailbox_Handle mbxHandle = (Mailbox_Handle)arg0;
       while(1){
@@ -214,8 +217,7 @@ Void heartBeatFxn(UArg arg0, UArg arg1)
                              GPIO_toggle(Board_LED2);
                              break;
                          default://turn off all LEDs
-                             GPIO_toggle(Board_LED2);
-                             //GPIO_write(Board_LED0|Board_LED1|Board_LED2, 0);
+                             GPIO_write(Board_LED0|Board_LED1|Board_LED2, 0);
                              break;
                  }
           }
@@ -263,11 +265,6 @@ int main(void)
     taskParams.stackSize = TASKSTACKSIZE;
     taskParams.stack = &task0Stack;
     Task_construct(&task0Struct, (Task_FuncPtr)heartBeatFxn, &taskParams, NULL);
-
-
-
-    /* Turn on user LED */
-    //GPIO_write(Board_LED0, Board_LED_ON);
 
 
    System_printf("Starting the UART Echo example\nSystem provider is set to "
